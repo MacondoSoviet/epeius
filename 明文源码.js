@@ -4,8 +4,8 @@ import { connect } from "cloudflare:sockets";
 let password = '';
 let proxyIP = '';
 //let sub = '';
-let subConverter = 'SUBAPI.fxxk.dedyn.io';// clash订阅转换后端，目前使用CM的订阅转换功能。自带虚假节点信息防泄露
-let subConfig = "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR_Online_Mini_MultiMode.ini"; //订阅配置文件
+let subConverter = atob('U1VCQVBJLkNNTGl1c3Nzcy5uZXQ=');
+let subConfig = atob('aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL0FDTDRTU1IvQUNMNFNTUi9tYXN0ZXIvQ2xhc2gvY29uZmlnL0FDTDRTU1JfT25saW5lX01pbmlfTXVsdGlNb2RlLmluaQ==');
 let subProtocol = 'https';
 let subEmoji = 'true';
 let socks5Address = '';
@@ -123,13 +123,13 @@ export default {
 				if (url.searchParams.has('sub') && url.searchParams.get('sub') !== '') sub = url.searchParams.get('sub');
 
 				if (url.searchParams.has('proxyip')) {
-					path = `/?ed=2560&proxyip=${url.searchParams.get('proxyip')}`;
+					path = `/?proxyip=${url.searchParams.get('proxyip')}`;
 					RproxyIP = 'false';
 				} else if (url.searchParams.has('socks5')) {
-					path = `/?ed=2560&socks5=${url.searchParams.get('socks5')}`;
+					path = `/?socks5=${url.searchParams.get('socks5')}`;
 					RproxyIP = 'false';
 				} else if (url.searchParams.has('socks')) {
-					path = `/?ed=2560&socks5=${url.searchParams.get('socks')}`;
+					path = `/?socks5=${url.searchParams.get('socks')}`;
 					RproxyIP = 'false';
 				}
 				switch (url.pathname) {
@@ -161,7 +161,7 @@ export default {
 						let total = 24 * 1099511627776;
 
 						if (userAgent && (userAgent.includes('mozilla') || userAgent.includes('subconverter'))) {
-							return new Response(`<div style="font-size:13px;">${特洛伊Config}</div>`, {
+							return new Response(特洛伊Config, {
 								status: 200,
 								headers: {
 									"Content-Type": "text/html;charset=utf-8",
@@ -171,11 +171,11 @@ export default {
 								}
 							});
 						} else {
-							return new Response(`${特洛伊Config}`, {
+							return new Response(特洛伊Config, {
 								status: 200,
 								headers: {
 									"Content-Disposition": `attachment; filename=${FileName}; filename*=utf-8''${encodeURIComponent(FileName)}`,
-									"Content-Type": "text/plain;charset=utf-8",
+									//"Content-Type": "text/plain;charset=utf-8",
 									"Profile-Update-Interval": "6",
 									"Subscription-Userinfo": `upload=${pagesSum}; download=${workersSum}; total=${total}; expire=${expire}`,
 								}
@@ -425,7 +425,7 @@ async function handleTCPOutBound(remoteSocket, addressRemote, portRemote, rawCli
 			tcpSocket = await connectAndWrite(addressRemote, portRemote, true);
 		} else {
 			if (!proxyIP || proxyIP == '') {
-				proxyIP = atob('UFJPWFlJUC50cDEuZnh4ay5kZWR5bi5pbw==');
+				proxyIP = atob('UFJPWFlJUC50cDEuMDkwMjI3Lnh5eg==');
 			} else if (proxyIP.includes(']:')) {
 				portRemote = proxyIP.split(']:')[1] || portRemote;
 				proxyIP = proxyIP.split(']:')[0] || proxyIP;
@@ -704,11 +704,20 @@ async function get特洛伊Config(password, hostName, sub, UA, RproxyIP, _url, f
 		if ((addresses.length + addressesapi.length + addressescsv.length) == 0) {
 			// 定义 Cloudflare IP 范围的 CIDR 列表
 			let cfips = [
-				'103.21.244.0/23',
+				'103.21.244.0/24',
 				'104.16.0.0/13',
 				'104.24.0.0/14',
 				'172.64.0.0/14',
-				'103.21.244.0/23',
+				'104.16.0.0/14',
+				'104.24.0.0/15',
+				'141.101.64.0/19',
+				'172.64.0.0/14',
+				'188.114.96.0/21',
+				'190.93.240.0/21',
+				'162.159.152.0/23',
+				'104.16.0.0/13',
+				'104.24.0.0/14',
+				'172.64.0.0/14',
 				'104.16.0.0/14',
 				'104.24.0.0/15',
 				'141.101.64.0/19',
@@ -734,7 +743,11 @@ async function get特洛伊Config(password, hostName, sub, UA, RproxyIP, _url, f
 				return randomIP.join('.');
 			}
 			addresses = addresses.concat('127.0.0.1:1234#CFnat');
-			addresses = addresses.concat(cfips.map(cidr => generateRandomIPFromCIDR(cidr) + '#CF随机节点'));
+			let counter = 1;
+			const randomPorts = httpsPorts.concat('443');
+			addresses = addresses.concat(
+				cfips.map(cidr => generateRandomIPFromCIDR(cidr) + ':' + randomPorts[Math.floor(Math.random() * randomPorts.length)] + '#CF随机节点' + String(counter++).padStart(2, '0'))
+			);
 		}
 	}
 
@@ -817,22 +830,27 @@ async function get特洛伊Config(password, hostName, sub, UA, RproxyIP, _url, f
 			singbox订阅地址:<br>
 			<a href="javascript:void(0)" onclick="copyToClipboard('https://${proxyhost}${hostName}/${password}?sb','qrcode_3')" style="color:blue;text-decoration:underline;cursor:pointer;">https://${proxyhost}${hostName}/${password}?sb</a><br>
 			<div id="qrcode_3" style="margin: 10px 10px 10px 10px;"></div>
+			loon订阅地址:<br>
+			<a href="javascript:void(0)" onclick="copyToClipboard('https://${proxyhost}${hostName}/${password}?loon','qrcode_5')" style="color:blue;text-decoration:underline;cursor:pointer;">https://${proxyhost}${hostName}/${password}?loon</a><br>
+			<div id="qrcode_5" style="margin: 10px 10px 10px 10px;"></div>
 			${surge}
 			<strong><a href="javascript:void(0);" id="noticeToggle" onclick="toggleNotice()">实用订阅技巧∨</a></strong><br>
 				<div id="noticeContent" class="notice-content" style="display: none;">
-					<strong>1.</strong> 如您使用的是 PassWall、SSR+ 等路由插件，推荐使用 <strong>Base64订阅地址</strong> 进行订阅；<br>
+					<strong>1.</strong> 如您使用的是 PassWall、PassWall2 路由插件，订阅编辑的 <strong>用户代理(User-Agent)</strong> 设置为 <strong>PassWall</strong> 即可；<br>
 					<br>
-					<strong>2.</strong> 快速切换 <a href='${atob('aHR0cHM6Ly9naXRodWIuY29tL2NtbGl1L1dvcmtlclZsZXNzMnN1Yg==')}'>优选订阅生成器</a> 至：sub.google.com，您可将"?sub=sub.google.com"参数添加到链接末尾，例如：<br>
+					<strong>2.</strong> 如您使用的是 SSR+ 路由插件，推荐使用 <strong>Base64订阅地址</strong> 进行订阅；<br>
+					<br>
+					<strong>3.</strong> 快速切换 <a href='${atob('aHR0cHM6Ly9naXRodWIuY29tL2NtbGl1L1dvcmtlclZsZXNzMnN1Yg==')}'>优选订阅生成器</a> 至：sub.google.com，您可将"?sub=sub.google.com"参数添加到链接末尾，例如：<br>
 					&nbsp;&nbsp;https://${proxyhost}${hostName}/${password}<strong>?sub=sub.google.com</strong><br>
 					<br>
-					<strong>3.</strong> 快速更换 PROXYIP 至：proxyip.fxxk.dedyn.io:443，您可将"?proxyip=proxyip.fxxk.dedyn.io:443"参数添加到链接末尾，例如：<br>
-					&nbsp;&nbsp; https://${proxyhost}${hostName}/${password}<strong>?proxyip=proxyip.fxxk.dedyn.io:443</strong><br>
+					<strong>4.</strong> 快速更换 PROXYIP 至：proxyip.cmliussss.net:443，您可将"?proxyip=proxyip.cmliussss.net:443"参数添加到链接末尾，例如：<br>
+					&nbsp;&nbsp; https://${proxyhost}${hostName}/${password}<strong>?proxyip=proxyip.cmliussss.net:443</strong><br>
 					<br>
-					<strong>4.</strong> 快速更换 SOCKS5 至：user:password@127.0.0.1:1080，您可将"?socks5=user:password@127.0.0.1:1080"参数添加到链接末尾，例如：<br>
+					<strong>5.</strong> 快速更换 SOCKS5 至：user:password@127.0.0.1:1080，您可将"?socks5=user:password@127.0.0.1:1080"参数添加到链接末尾，例如：<br>
 					&nbsp;&nbsp;https://${proxyhost}${hostName}/${password}<strong>?socks5=user:password@127.0.0.1:1080</strong><br>
 					<br>
-					<strong>5.</strong> 如需指定多个参数则需要使用'&'做间隔，例如：<br>
-					&nbsp;&nbsp;https://${proxyhost}${hostName}/${password}?sub=sub.google.com<strong>&</strong>proxyip=proxyip.fxxk.dedyn.io<br>
+					<strong>6.</strong> 如需指定多个参数则需要使用'&'做间隔，例如：<br>
+					&nbsp;&nbsp;https://${proxyhost}${hostName}/${password}?sub=sub.google.com<strong>&</strong>proxyip=proxyip.cmliussss.net<br>
 				</div>
 			<script src="https://cdn.jsdelivr.net/npm/@keeex/qrcodejs-kx@1.0.2/qrcode.min.js"></script>
 			<script>
@@ -895,7 +913,7 @@ async function get特洛伊Config(password, hostName, sub, UA, RproxyIP, _url, f
 			################################################################<br>
 			${cmad}
 			`;
-		return 节点配置页;
+		return `<div style="font-size:13px;">${节点配置页}</div>`;
 	} else {
 		if (typeof fetch != 'function') {
 			return 'Error: fetch is not available in this environment.';
@@ -942,7 +960,7 @@ async function get特洛伊Config(password, hostName, sub, UA, RproxyIP, _url, f
 			url = `https://${hostName}/${fakeUserID + _url.search}`;
 		}
 
-		if (!userAgent.includes(('CF-Workers-SUB').toLowerCase())) {
+		if (!userAgent.includes(('CF-Workers-SUB').toLowerCase()) && !_url.searchParams.has('b64') && !_url.searchParams.has('base64')) {
 			if ((userAgent.includes('clash') && !userAgent.includes('nekobox')) || (_url.searchParams.has('clash'))) {
 				url = `${subProtocol}://${subConverter}/sub?target=clash&url=${encodeURIComponent(url)}&insert=false&config=${encodeURIComponent(subConfig)}&emoji=${subEmoji}&list=false&tfo=false&scv=true&fdn=false&sort=false&new_name=true`;
 				isBase64 = false;
@@ -951,6 +969,9 @@ async function get特洛伊Config(password, hostName, sub, UA, RproxyIP, _url, f
 				isBase64 = false;
 			} else if (userAgent.includes('surge') || _url.searchParams.has('surge')) {
 				url = `${subProtocol}://${subConverter}/sub?target=surge&ver=4&url=${encodeURIComponent(url)}&insert=false&config=${encodeURIComponent(subConfig)}&emoji=${subEmoji}&list=false&xudp=false&udp=false&tfo=false&expand=true&scv=true&fdn=false`;
+				isBase64 = false;
+			} else if (userAgent.includes('loon') || _url.searchParams.has('loon')) {
+				url = `${subProtocol}://${subConverter}/sub?target=loon&url=${encodeURIComponent(url)}&insert=false&config=${encodeURIComponent(subConfig)}&emoji=${subEmoji}&list=false&tfo=false&scv=true&fdn=false&sort=false&new_name=true`;
 				isBase64 = false;
 			}
 		}
@@ -1234,14 +1255,15 @@ function subAddresses(host, pw, userAgent, newAddressesapi, newAddressescsv) {
 		let 伪装域名 = host;
 		let 最终路径 = path;
 		let 节点备注 = '';
-
+		const matchingProxyIP = proxyIPPool.find(proxyIP => proxyIP.includes(address));
+		if (matchingProxyIP) 最终路径 = `/?proxyip=${matchingProxyIP}`;
+		
 		if (proxyhosts.length > 0 && (伪装域名.includes('.workers.dev'))) {
 			最终路径 = `/${伪装域名}${最终路径}`;
 			伪装域名 = proxyhosts[Math.floor(Math.random() * proxyhosts.length)];
 			节点备注 = ` 已启用临时域名中转服务，请尽快绑定自定义域！`;
 		}
-		const matchingProxyIP = proxyIPPool.find(proxyIP => proxyIP.includes(address));
-		if (matchingProxyIP) 最终路径 += `&proxyip=${matchingProxyIP}`;
+
 		let 密码 = pw;
 		if (!userAgent.includes('subconverter')) 密码 = encodeURIComponent(pw);
 
@@ -1269,7 +1291,7 @@ async function getAddressesapi(api) {
 		controller.abort(); // 取消所有请求
 	}, 2000); // 2秒后触发
 
-	try {   
+	try {
 		// 使用Promise.allSettled等待所有API请求完成，无论成功或失败
 		// 对api数组进行遍历，对每个API地址发起fetch请求
 		const responses = await Promise.allSettled(api.map(apiUrl => fetch(apiUrl, {
